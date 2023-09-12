@@ -19,7 +19,7 @@ public static class Extensions
             if (jMsg.Contains('\0', StringComparison.Ordinal))
             {
                 EndOfMessageFound = true;
-                sb.Append(jMsg.Substring(0, jMsg.IndexOf('\0', StringComparison.Ordinal)-1));
+                sb.Append(jMsg.Substring(0, jMsg.IndexOf('\0', StringComparison.Ordinal)));
             }
             else
             {
@@ -31,7 +31,7 @@ public static class Extensions
 
     public static void WriteString(this TcpClient client, string msg)
     {
-        var bytes = Encoding.ASCII.GetBytes(msg + '\0');
+        var bytes = Encoding.ASCII.GetBytes(msg);
         var stream = client.GetStream();
         stream.Write(bytes, 0, bytes.Length);
         stream.Flush();
