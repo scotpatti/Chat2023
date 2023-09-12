@@ -1,25 +1,39 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 
-namespace Extensions
-{
-    public static class Extensions
-    {
-        public static string ReadString(this TcpClient client)
-        {
-            var stream = client.GetStream();
-            var bytes = new byte[client.ReceiveBufferSize];
-            stream.Read(bytes, 0, bytes.Length);
-            var msg = Encoding.ASCII.GetString(bytes);
-            return msg.Substring(0, msg.IndexOf("\0", StringComparison.Ordinal));
-        }
 
-        public static void WriteString(this TcpClient client, string msg)
+namespace Extensions;
+
+public static class Extensions
+{
+    public static string ReadString(this TcpClient client)
+    {
+        StringBuilder sb = new StringBuilder();
+        var bytes = new byte[client.ReceiveBufferSize];
+        var stream = client.GetStream();
+        bool EndOfMessageFound = false;
+        while (!EndOfMessageFound)
         {
-            var bytes = Encoding.ASCII.GetBytes(msg);
-            var stream = client.GetStream();
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Flush();
+            stream.Read(bytes, 0, bytes.Length);
+            string jMsg = Encoding.ASCII.GetString(bytes);
+            if (jMsg.Contains('\0', StringComparison.Ordinal))
+            {
+                EndOfMessageFound = true;
+                sb.Append(jMsg.Substring(0, jMsg.IndexOf('\0', StringComparison.Ordinal)-1));
+            }
+            else
+            {
+                sb.Append(jMsg);
+            }
         }
+        return sb.ToString();
+    }
+
+    public static void WriteString(this TcpClient client, string msg)
+    {
+        var bytes = Encoding.ASCII.GetBytes(msg + '\0');
+        var stream = client.GetStream();
+        stream.Write(bytes, 0, bytes.Length);
+        stream.Flush();
     }
 }

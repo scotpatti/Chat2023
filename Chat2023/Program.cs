@@ -1,7 +1,7 @@
-﻿using System.Net.Sockets;
-using System;
-using System.Net;
+﻿using Chat2023.Json;
 using Extensions;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Chat2023;
 
@@ -19,30 +19,29 @@ public static class Program
             try
             {
                 var clientSocket = ServerSocket.AcceptTcpClient();
-                string username = clientSocket.ReadString().TrimEnd();
-                ClientList.Add(username, clientSocket);
-                Broadcast(" joined the chatroom.", username, false);
-                var client = new HandleClient();
-                client.StartClient(clientSocket, username);
+                ChatMessage joinMessage = clientSocket.ReadChatMessage();
+                ClientList.Add(joinMessage.Sender, clientSocket);
+                Broadcast(new ChatMessage("System", $"{joinMessage.Sender} joined the chat."));
+                var client = new HandleClient(clientSocket, joinMessage.Sender);
+                client.StartClient();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Client aborted connection");
+                Console.WriteLine("Client aborted connection: " + ex.Message);
             }
         }
     }
 
-    public static void Broadcast(string msg, string uname, bool flag)
+    public static void Broadcast(ChatMessage msg)
     {
         foreach (var item in ClientList)
         {
             try { 
-                var m = flag ? uname + " says: " + msg : uname + msg + "\r\n";
-                item.Value.WriteString(m);
+                item.Value.WriteChatMessage(msg);
             }
             catch
             {
-                Console.WriteLine($"Unable to write to {item.Key}");
+                Console.WriteLine($"Unable to write to user {item.Key}, removing user.");
                 ClientList.Remove(item.Key);
             }
         }

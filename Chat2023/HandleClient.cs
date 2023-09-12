@@ -1,41 +1,44 @@
-﻿using Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Chat2023.Json;
+using Extensions;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Chat2023
+namespace Chat2023;
+
+internal class HandleClient
 {
-    internal class HandleClient
+    private TcpClient clientSocket;
+    private string clientName;
+
+    public HandleClient(TcpClient socket, string name)
     {
-        private TcpClient clientSocket;
-        private string clientName;
-
-        public void StartClient(TcpClient client, string name)
+        if (socket is null || string.IsNullOrWhiteSpace(name))
         {
-            clientSocket = client;
-            clientName = name;
-            var thread = new Thread(DoChat);
-            thread.Start();
+            throw new ArgumentNullException("TcpClient socket must not be null, and name must not be empty or whitespace.");
         }
+        this.clientSocket = socket;
+        this.clientName = name;
+    }
 
-        private void DoChat()
+    public void StartClient()
+    {
+        var thread = new Thread(DoChat);
+        thread.Start();
+    }
+
+    private void DoChat()
+    {
+        while (true)
         {
-            while (true)
+            try
             {
-                try
-                {
-                    string dataFromClient = clientSocket.ReadString();
-                    Program.Broadcast(dataFromClient, clientName, true);
-                    Console.WriteLine($"{clientName} said: {dataFromClient}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    break;
-                }
+                ChatMessage msg = clientSocket.ReadChatMessage();
+                Program.Broadcast(msg);
+                Console.WriteLine($"{clientName} said: {msg.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                break;
             }
         }
     }
