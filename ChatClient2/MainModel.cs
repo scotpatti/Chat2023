@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using ChatLib;
+using System.ComponentModel;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -11,8 +12,16 @@ namespace ChatClient
         public readonly string IP = "10.10.12.13";
         public readonly int PORT = 8888;
 
-        #region Properties
+        #region Properties and Fields
         private TcpClient _socket;
+
+        private string _Username;
+        public string Username
+        {
+            get { return _Username; }
+            set { SetField<string>(ref _Username, value); }
+        }
+
         private string _MessageBoard;
         public string MessageBoard { 
             get { return _MessageBoard;} 
@@ -47,11 +56,18 @@ namespace ChatClient
 
         public void Send()
         {
-            //ChatMessage msg = new ChatMessage();
+            ChatMessage msg = new ChatMessage(_Username, _CurrentMessage);
+            _socket.WriteChatMessage(msg);
         }
 
         public void GetMessage()
         {
+            while (true)
+            {
+                ChatMessage msg = _socket.ReadChatMessage();
+                MessageBoard += msg.Message + "\r\n";
+            }
+            
 
         }
 

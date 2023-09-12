@@ -1,4 +1,4 @@
-﻿using ChatLibrary;
+﻿using ChatLib;
 using System.Net.Sockets;
 
 namespace Chat2023;

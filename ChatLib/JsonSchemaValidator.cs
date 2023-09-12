@@ -3,7 +3,7 @@ using Newtonsoft.Json.Schema;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ChatLibrary
+namespace ChatLib
 {
     public class JsonSchemaValidator
     {

@@ -1,4 +1,4 @@
-using ChatLibrary;
+using ChatLib;
 using Newtonsoft.Json;
 
 namespace TestJsonParsing;

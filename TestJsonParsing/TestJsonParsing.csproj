@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chat2023\Chat2023.csproj" />
-    <ProjectReference Include="..\ChatLibrary\ChatLibrary.csproj" />
   </ItemGroup>
 
 </Project>

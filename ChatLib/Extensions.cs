@@ -2,9 +2,9 @@
 using System.Net.Sockets;
 using System.Text;
 using System;
-using ChatLibrary;
+using ChatLib;
 
-namespace ChatLibrary
+namespace ChatLib
 {
     public static class Extensions
     {
