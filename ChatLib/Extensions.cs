@@ -39,20 +39,20 @@ namespace ChatLib
             stream.Flush();
         }
 
-        public static ChatMessage ReadChatMessage(this TcpClient client)
+        public static ChatMessage? ReadChatMessage(this TcpClient client)
         {
             string msg = client.ReadString();
             (bool success, string errors) = JsonSchemaValidator.Validate(msg);
-            if (!success)
+            if (success)
             {
-                throw new Exception(errors);
+                var chatMessage = JsonConvert.DeserializeObject<ChatMessage>(msg);
+                if (chatMessage == null)
+                {
+                    throw new Exception("Something went wrong and we couldn't deserialize the object even though it passed validation!");
+                }
+                return chatMessage;
             }
-            var chatMessage = JsonConvert.DeserializeObject<ChatMessage>(msg);
-            if (chatMessage == null)
-            {
-                throw new Exception("Something went wrong and we couldn't deserialize the object even though it passed validation!");
-            }
-            return chatMessage;
+            return null;
         }
 
         public static void WriteChatMessage(this TcpClient client, ChatMessage message)

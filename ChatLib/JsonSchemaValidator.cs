@@ -31,17 +31,24 @@ namespace ChatLib
         {
             bool success = true;
             StringBuilder errs = new StringBuilder();
-            JObject jobj = JObject.Parse(json);
-
-            if (!jobj.IsValid(MessageSchema, out IList<ValidationError> errorMessages))
+            try
             {
-                success = false;
-                foreach (var error in errorMessages)
+                JObject jobj = JObject.Parse(json);
+
+                if (!jobj.IsValid(MessageSchema, out IList<ValidationError> errorMessages))
                 {
-                    errs.AppendLine($"Error: {error.Message} at: {error.Path}");
+                    success = false;
+                    foreach (var error in errorMessages)
+                    {
+                        errs.AppendLine($"Error: {error.Message} at: {error.Path}");
+                    }
                 }
+                return (success, errs.ToString());
             }
-            return (success, errs.ToString());
+            catch (Exception)
+            {
+                return (false, "Invalid JSON - Validate in JsonSchemaValidator did not find valid JSON could not verify schema.");
+            }
         }
     }
 }

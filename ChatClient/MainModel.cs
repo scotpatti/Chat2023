@@ -1,4 +1,5 @@
 ﻿using ChatLib;
+using System;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ namespace ChatClient
         public readonly int PORT = 8888;
 
         #region Properties and Fields
-        private TcpClient _socket;
+        private TcpClient? _socket;
 
         private string _Username;
         public string Username
@@ -56,34 +57,45 @@ namespace ChatClient
 
         public void Send()
         {
-            ChatMessage msg = new ChatMessage(_Username, _CurrentMessage);
-            _socket.WriteChatMessage(msg);
+            if (_socket != null)
+            {
+                ChatMessage msg = new ChatMessage(_Username, _CurrentMessage);
+                _socket.WriteChatMessage(msg);
+            }
         }
 
         public void GetMessage()
         {
-            while (true)
+            while (_socket != null)
             {
-                ChatMessage msg = _socket.ReadChatMessage();
-                MessageBoard += msg.Message + "\r\n";
+                ChatMessage? msg = _socket.ReadChatMessage();
+                if (msg!=null)
+                {
+                    MessageBoard += msg.Message + "\r\n";
+                }
+                
             }
+        }
             
 
-        }
+        
 
         #endregion
 
         #region Constructor
         public MainModel()
         {
+            _Username = string.Empty;
+            _CurrentMessage = string.Empty;
+            _MessageBoard = string.Empty;
             _Connected = false;
         }
         #endregion
 
         #region INPC
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        protected void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
         {
             field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -91,3 +103,4 @@ namespace ChatClient
         #endregion
     }
 }
+

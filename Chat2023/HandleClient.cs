@@ -30,14 +30,20 @@ internal class HandleClient
         {
             try
             {
-                ChatMessage msg = clientSocket.ReadChatMessage();
-                Program.Broadcast(msg);
-                Console.WriteLine($"{clientName} said: {msg.Message}");
+                ChatMessage? msg = clientSocket.ReadChatMessage();
+                if (msg != null)
+                {
+                    Program.Broadcast(msg);
+                    Console.WriteLine($"{clientName} said: {msg.Message}");
+                }
+                else
+                {
+                    Console.WriteLine($"{clientName} did not get a message because it was ill formed.");
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                break;
+                Console.WriteLine($"Unexpected Error: {ex.Message}");
             }
         }
     }

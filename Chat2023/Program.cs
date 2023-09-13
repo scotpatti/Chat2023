@@ -18,15 +18,19 @@ public static class Program
             try
             {
                 var clientSocket = ServerSocket.AcceptTcpClient();
-                ChatMessage joinMessage = clientSocket.ReadChatMessage();
-                ClientList.Add(joinMessage.Sender, clientSocket);
-                Broadcast(new ChatMessage("System", $"{joinMessage.Sender} joined the chat."));
-                var client = new HandleClient(clientSocket, joinMessage.Sender);
-                client.StartClient();
+                ChatMessage? joinMessage = clientSocket.ReadChatMessage();
+                if (joinMessage != null)
+                {
+                    ClientList.Add(joinMessage.Sender, clientSocket);
+                    Broadcast(new ChatMessage("System", $"{joinMessage.Sender} joined the chat."));
+                    var client = new HandleClient(clientSocket, joinMessage.Sender);
+                    client.StartClient();
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Client aborted connection: " + ex.Message);
+                Console.WriteLine("Some client aborted connection: " + ex.Message);
+                //TODO: We should probably remove the offending client. 
             }
         }
     }
