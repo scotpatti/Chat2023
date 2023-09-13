@@ -33,8 +33,11 @@ internal class HandleClient
                 ChatMessage? msg = clientSocket.ReadChatMessage();
                 if (msg != null)
                 {
-                    Program.Broadcast(msg);
-                    Console.WriteLine($"{clientName} said: {msg.Message}");
+                    if (msg.Sender == clientName)
+                    {
+                        Program.Broadcast(msg);
+                        Console.WriteLine($"{clientName} said: {msg.Message}");
+                    }
                 }
                 else
                 {
