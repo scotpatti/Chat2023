@@ -1,10 +1,9 @@
 ﻿using ChatLib;
-using System;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading;
-//using ChatHelper;
+
 
 namespace ChatClient
 {
