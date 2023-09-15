@@ -24,5 +24,11 @@ namespace ChatClient2
         {
             InitializeComponent();
         }
+
+        private void tbChatContent_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox tb = (TextBox)sender;
+            tb.ScrollToEnd();
+        }
     }
 }

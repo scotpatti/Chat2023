@@ -1,13 +1,12 @@
 ﻿using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
-using System.Collections.Generic;
 using System.Text;
 
-namespace ChatLib
+namespace ChatLib;
+
+public class JsonSchemaValidator
 {
-    public class JsonSchemaValidator
-    {
-        public static JSchema MessageSchema = JSchema.Parse(@"
+    public static JSchema MessageSchema = JSchema.Parse(@"
         {
             ""type"": ""object"",
             ""properties"":
@@ -27,28 +26,27 @@ namespace ChatLib
             ""additionalProperties"": false
         }");
 
-        public static (bool, string) Validate(string json)
+    public static (bool, string) Validate(string json)
+    {
+        bool success = true;
+        StringBuilder errs = new StringBuilder();
+        try
         {
-            bool success = true;
-            StringBuilder errs = new StringBuilder();
-            try
-            {
-                JObject jobj = JObject.Parse(json);
+            JObject jobj = JObject.Parse(json);
 
-                if (!jobj.IsValid(MessageSchema, out IList<ValidationError> errorMessages))
-                {
-                    success = false;
-                    foreach (var error in errorMessages)
-                    {
-                        errs.AppendLine($"Error: {error.Message} at: {error.Path}");
-                    }
-                }
-                return (success, errs.ToString());
-            }
-            catch (Exception)
+            if (!jobj.IsValid(MessageSchema, out IList<ValidationError> errorMessages))
             {
-                return (false, "Invalid JSON - Validate in JsonSchemaValidator did not find valid JSON could not verify schema.");
+                success = false;
+                foreach (var error in errorMessages)
+                {
+                    errs.AppendLine($"Error: {error.Message} at: {error.Path}");
+                }
             }
+            return (success, errs.ToString());
+        }
+        catch (Exception)
+        {
+            return (false, "Invalid JSON - Validate in JsonSchemaValidator did not find valid JSON could not verify schema.");
         }
     }
 }

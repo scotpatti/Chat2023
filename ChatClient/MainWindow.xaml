@@ -5,13 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChatClient"
         mc:Ignorable="d"
-        Title="MainWindow" Height="286" Width="462">
+        Title="MainWindow" Height="286" Width="489">
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
     <Grid>
-        <TextBox x:Name="tbName" Margin="64,10,63,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
-        <Button Content="Connect" Margin="0,8,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="48"/>
-        <TextBox Height="71" Margin="10,58,10,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
+        <TextBox x:Name="tbName" Margin="64,10,63,0" TextWrapping="Wrap" Text="{Binding Username}" VerticalAlignment="Top"/>
+        <Button Content="Connect" Command="{Binding ConnectCommand}" Margin="0,8,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="48"/>
+        <TextBox Height="71" Margin="10,58,10,0" TextWrapping="Wrap" Text="{Binding Message}" VerticalAlignment="Top"/>
         <Label Content="Type Messages here:" HorizontalAlignment="Left" Margin="10,27,0,0" VerticalAlignment="Top"/>
         <Label Content="Name:" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="tbChatContent" Margin="10,134,10,10" TextWrapping="Wrap" Text="" RenderTransformOrigin="-1.156,-0.833"/>
+        <TextBox x:Name="tbChatContent" Margin="10,134,10,10" TextWrapping="Wrap" Text="{Binding MessageBoard}" VerticalScrollBarVisibility="Visible" TextChanged="tbChatContent_TextChanged" />
+        <Button Content="Send" Command="{Binding SendCommand}" HorizontalAlignment="Left" Margin="134,33,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

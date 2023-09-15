@@ -5,101 +5,100 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 
 
-namespace ChatClient
+namespace ChatClient;
+
+public class MainModel : INotifyPropertyChanged
 {
-    internal class MainModel : INotifyPropertyChanged
+    #region Properties and Fields
+    public readonly string IP = Extensions.LocalIPAddress().ToString();
+    public readonly int PORT = 8888;
+
+    private TcpClient? _socket;
+
+    private string _Username;
+    public string Username
     {
-        public readonly string IP = "10.10.12.13";
-        public readonly int PORT = 8888;
+        get => _Username; 
+        set => _Username = SetField<string>(value); 
+    }
 
-        #region Properties and Fields
-        private TcpClient? _socket;
+    private string _MessageBoard;
+    public string MessageBoard { 
+        get => _MessageBoard;
+        set => _MessageBoard = SetField<string>(value); 
+    }
 
-        private string _Username;
-        public string Username
+    private string _CurrentMessage;
+    public string CurrentMessage
+    {
+        get => _CurrentMessage;
+        set => _CurrentMessage = SetField<string>(value);
+    }
+
+    private bool _Connected;
+    public bool Connected
+    {
+        get => _Connected; 
+        set => _Connected = SetField<bool>(value);
+    }
+    #endregion
+
+    #region Constructor
+    public MainModel()
+    {
+        _Username = string.Empty;
+        _CurrentMessage = string.Empty;
+        _MessageBoard = string.Empty;
+        _Connected = false;
+    }
+    #endregion
+
+    #region Methods
+    public void Connect()
+    {
+        _socket = new TcpClient();
+        _socket.Connect(IP, PORT);
+        Connected = true;
+        Send();
+        var thread = new Thread(GetMessage);
+        thread.Start();
+    }
+
+    public void Send()
+    {
+        if (_socket != null)
         {
-            get { return _Username; }
-            set { SetField<string>(ref _Username, value); }
+            ChatMessage msg = new ChatMessage(_Username, _CurrentMessage);
+            _socket.WriteChatMessage(msg);
         }
+    }
 
-        private string _MessageBoard;
-        public string MessageBoard { 
-            get { return _MessageBoard;} 
-            set { SetField<string>(ref _MessageBoard, value); } 
-        }
-
-        private string _CurrentMessage;
-        public string CurrentMessage
+    public void GetMessage()
+    {
+        while (_socket != null)
         {
-            get { return _CurrentMessage;}
-            set { SetField<string>(ref _CurrentMessage, value); }
-        }
-
-        private bool _Connected;
-        public bool Connected
-        {
-            get { return _Connected; }
-            set { SetField<bool>(ref _Connected, value); }
-        }
-        #endregion
-
-        #region Methods
-        public void Connect()
-        {
-            _socket = new TcpClient();
-            _socket.Connect(IP, PORT);
-            Connected = true;
-            Send();
-            var thread = new Thread(GetMessage);
-            thread.Start();
-        }
-
-        public void Send()
-        {
-            if (_socket != null)
+            ChatMessage? msg = _socket.ReadChatMessage();
+            if (msg!=null)
             {
-                ChatMessage msg = new ChatMessage(_Username, _CurrentMessage);
-                _socket.WriteChatMessage(msg);
+                MessageBoard +=$"{msg.Sender} says: {msg.Message}\r\n";
             }
-        }
-
-        public void GetMessage()
-        {
-            while (_socket != null)
-            {
-                ChatMessage? msg = _socket.ReadChatMessage();
-                if (msg!=null)
-                {
-                    MessageBoard += msg.Message + "\r\n";
-                }
-                
-            }
-        }
             
-
+        }
+    }
         
 
-        #endregion
+    
 
-        #region Constructor
-        public MainModel()
-        {
-            _Username = string.Empty;
-            _CurrentMessage = string.Empty;
-            _MessageBoard = string.Empty;
-            _Connected = false;
-        }
-        #endregion
+    #endregion
 
-        #region INPC
-        public event PropertyChangedEventHandler? PropertyChanged;
+    #region INPC
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-        {
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
+    protected T SetField<T>(T value, [CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return value;
     }
+    #endregion
 }
 
