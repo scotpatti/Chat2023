@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 
 
-namespace ChatClient;
+namespace ChatLib;
 
 public class MainModel : INotifyPropertyChanged
 {
@@ -19,27 +19,27 @@ public class MainModel : INotifyPropertyChanged
     public string Username
     {
         get => _Username; 
-        set => _Username = SetField<string>(value); 
+        set => SetField<string>(out _Username, value); 
     }
 
     private string _MessageBoard;
     public string MessageBoard { 
         get => _MessageBoard;
-        set => _MessageBoard = SetField<string>(value); 
+        set => SetField<string>(out _MessageBoard, value); 
     }
 
     private string _CurrentMessage;
     public string CurrentMessage
     {
         get => _CurrentMessage;
-        set => _CurrentMessage = SetField<string>(value);
+        set => SetField<string>(out _CurrentMessage, value);
     }
 
     private bool _Connected;
     public bool Connected
     {
         get => _Connected; 
-        set => _Connected = SetField<bool>(value);
+        set => SetField<bool>(out _Connected, value);
     }
     #endregion
 
@@ -94,10 +94,10 @@ public class MainModel : INotifyPropertyChanged
     #region INPC
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected T SetField<T>(T value, [CallerMemberName] string propertyName = "")
+    protected void SetField<T>(out T variable, T value, [CallerMemberName] string propertyName = "")
     {
+        variable = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        return value;
     }
     #endregion
 }
